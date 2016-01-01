@@ -1,0 +1,25 @@
+doctype html
+html
+	head
+		title Lance Commander
+		meta [name="keywords" content="BattleTech Alpha Strike"]
+		meta [name="author" content="Michael Brewer"]
+		javascript:
+			(function(){
+				"use strict";
+				function ready(fn){
+					window.setTimeout(function(){
+						if (document.readyState != 'loading'){
+							fn();
+						} else {
+							document.addEventListener('DOMContentLoaded', fn);
+						}
+					}, 1);
+				}
+				window.ready = window.ready || ready;
+			})();
+		= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true
+		= javascript_include_tag 'application', 'data-turbolinks-track' => true
+		= csrf_meta_tags
+	body
+		== yield

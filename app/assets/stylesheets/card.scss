@@ -1,3 +1,131 @@
-// Place all the styles related to the card controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
+$primary:   #000000;
+$secondary: #2B2B2B;
+
+body {
+	width: 100%;
+	height: 100%
+}
+canvas {
+	position: absolute;
+	width: 100vw; 
+	height: 71.43vw; // height:width ratio = 2.5/3.5 = 0.71428571428571
+	top:0;bottom:0; // vertical center
+	left:0;right:0; // horizontal center
+	max-height: 100vh;
+	max-width: 140vh; // 3.5/2.5 = 1.4
+	margin: auto;
+}
+
+* {
+	box-sizing: border-box;
+	box-shadow: none;
+	border-width: 0;
+	padding: 0;
+	margin: 0;
+}
+
+.stat {
+	position: absolute;
+	padding: 0 10px;
+	background-color: rgba(128,0,0,0.2); // DEBUG
+	
+	label {
+		font-color: $secondary;
+		font-size: 24px;
+		font-weight: 500;
+		padding-right: 8px;
+	}
+
+	input {
+		width: 50px;
+		font-color: $primary;
+		font-size: 30px;
+		font-weight: 800;
+		text-align: center;
+		text-shadow:
+			-1px -1px 0 rgba(255,255,255,0.5),
+			 1px -1px 0 rgba(255,255,255,0.5),
+			-1px  1px 0 rgba(255,255,255,0.5),
+			 1px  1px 0 rgba(255,255,255,0.5);
+		background-color: rgba(0,0,0,0.2);
+
+		&:hover {
+			box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.25);
+		}
+		&:focus {
+			box-shadow: inset 0px 0px 2px rgba(0, 0, 128, 0.25);
+		}
+	}
+}
+
+.card-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.card {
+	position: absolute;
+	border-color: $secondary;
+	border-width: 20px;
+	border-style: solid;
+	width: 1050px;
+	height: 750px;
+	top: 0;
+	left: 0;
+}
+
+
+.variant {
+	@extend .stat;
+	top: 24px;
+	left: 20px;
+	input {
+		width: 700px;
+		font-size: 20px;
+		font-weight: 100;
+		text-align: left;
+	}
+}
+
+.model {
+	@extend .stat;
+	top: 40px;
+	left: 18px;
+	input {
+		width: 700px;
+		font-size: 48px;
+		text-align: left;
+	}
+}
+
+.pv {
+	@extend .stat;
+	top: 20px;
+	right: 20px;
+}
+
+.stat-group {
+	@extend .stat;
+	top: 108px;
+	left: 28px;
+	width: 575px;
+	background-color: #cccccc;
+	border-radius: 12px;
+	border-color: $secondary;
+	border-width: 2px;
+	border-style: solid;
+}
+.tp, .sz, .tmm, .mv, .role, .skill {
+	display: inline-block;
+}
+.tmm, .mv {
+	input {
+		width: 110px;
+	}
+}
+.role {
+	input {
+		width: 254px;
+		text-align: left;
+	}
+}
