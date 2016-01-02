@@ -27,18 +27,20 @@ canvas {
 .stat {
 	position: absolute;
 	padding: 0 10px;
-	background-color: rgba(128,0,0,0.2); // DEBUG
+	background-color: rgba(255,0,0,0.1); // DEBUG
 	
 	label {
-		font-color: $secondary;
+		color: $secondary;
 		font-size: 24px;
 		font-weight: 500;
 		padding-right: 8px;
+		background-color: rgba(0,0,0,0);
+		background-color: rgba(0,0,255,0.1); // DEBUG
 	}
 
 	input {
 		width: 50px;
-		font-color: $primary;
+		color: $primary;
 		font-size: 30px;
 		font-weight: 800;
 		text-align: center;
@@ -47,7 +49,8 @@ canvas {
 			 1px -1px 0 rgba(255,255,255,0.5),
 			-1px  1px 0 rgba(255,255,255,0.5),
 			 1px  1px 0 rgba(255,255,255,0.5);
-		background-color: rgba(0,0,0,0.2);
+		background-color: rgba(0,0,0,0);
+		background-color: rgba(0,255,0,0.1); // DEBUG
 
 		&:hover {
 			box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.25);
@@ -74,27 +77,38 @@ canvas {
 	left: 0;
 }
 
-
-.variant {
+.data-entry {
 	@extend .stat;
-	top: 24px;
+	display: none;
+	padding: 0;
+	z-index: 999;
+	input {
+		background: rgba(230,230,255,1);
+	}
+}
+
+.unit {
+	@extend .stat;
+	top: 20px;
 	left: 20px;
 	input {
 		width: 700px;
-		font-size: 20px;
-		font-weight: 100;
+		font-size: 48px;
+		line-height: 48px;
 		text-align: left;
 	}
 }
 
-.model {
+.variant {
 	@extend .stat;
-	top: 40px;
-	left: 18px;
+	top: 79px;
+	left: 20px;
 	input {
 		width: 700px;
-		font-size: 48px;
+		font-size: 20px;
+		font-weight: 200;
 		text-align: left;
+		text-shadow: none;
 	}
 }
 
@@ -115,6 +129,7 @@ canvas {
 	border-width: 2px;
 	border-style: solid;
 }
+
 .tp, .sz, .tmm, .mv, .role, .skill {
 	display: inline-block;
 }
@@ -128,4 +143,24 @@ canvas {
 		width: 254px;
 		text-align: left;
 	}
+}
+
+
+.attack-group {
+	@extend .stat-group;
+	top: 220px;
+}
+.damage {
+	transform: rotate(-90deg);
+	transform-origin: left bottom 0;
+}
+.short, .medium, .long {
+	display: inline-block;
+	margin-left: 40px;
+	label, input {
+		display: block;
+		width: 100px;
+		text-align: center;
+	}
+
 }

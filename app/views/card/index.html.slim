@@ -1,32 +1,45 @@
 
 canvas#canvas [width="1050" height="750"]
+.data-entry#data-entry-container: input [id="data-entry"]
 
-#cardContainer.card-container: #card.card
-	.model
-		input [id="model" name="model" title="Model (e.g. Locust)" value="Locust"]
+#card-container.card-container: #card.card: form#card-form
+	.unit
+		input [id="unit" name="unit" title="Unit (e.g. Locust)" value="Locust" placeholder="Unit"]
 	.variant
-		input [id="variant" name="variant" title="Variant (e.g. LCT-1E)" value="LCT-1E"]
+		input [id="variant" name="variant" title="Variant (e.g. LCT-1E)" value="LCT-1E" placeholder="Variant"]
 	.pv
 		label [title="Point Value" for="pv"] PV:
-		input [id="pv" name="pv" value="15"]
+		input [id="pv" name="pv" value="15" placeholder="PV"]
 	
 	.stat-group
 		.tp
 			label [title="Unit Type" for="tp"] TP:
-			input [id="tp" name="tp" value="BM"]
+			input [id="tp" name="tp" value="BM" placeholder="TP"]
 		.sz
 			label [title="Unit Size" for="sz"] SZ:
-			input [id="sz" name="sz" value="1"]
+			input [id="sz" name="sz" value="1" placeholder="SZ"]
 		.tmm
 			label [title="Target Movement Modifier" for="tmm"] TMM:
-			input [id="tmm" name="tmm" value="3/0j/0g"]
+			input [id="tmm" name="tmm" value="3" placeholder="TMM"]
 		.mv
 			label [title="Movement" for="mv"] MV:
-			input [id="mv" name="mv" value="8/0j/0g"]
+			input [id="mv" name="mv" value="8" placeholder="MV"]
 		br/
 		.role
 			label [title="Role Type" for="role"] ROLE:
-			input [id="role" name="role" value="Scout"]
+			input [id="role" name="role" value="Scout" placeholder="Role"]
 		.skill
 			label [title="Pilot Skill" for="skill"] SKILL:
-			input [id="skill" name="skill" value="4"]
+			input [id="skill" name="skill" value="4" placeholder="Skill"]
+
+	.attack-group
+		.damage DAMAGE
+		.short
+			label [title="Short Range" for="short"] S (+0)
+			input [id="short" name="short" value="2" placeholder="0"]
+		.medium
+			label [title="Medium Range" for="medium"] M (+2)
+			input [id="medium" name="medium" value="1" placeholder="0"]
+		.long
+			label [title="Long Range" for="long"] L (+4)
+			input [id="long" name="long" value="0" placeholder="0"]
