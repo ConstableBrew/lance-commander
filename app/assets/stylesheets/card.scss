@@ -19,15 +19,17 @@ html, body {
 	padding: 0 10px;
 	background-color: rgba(255,0,0,0.1); // DEBUG
 	
-	label {
+	&, label {
 		color: $secondary;
 		font-size: 24px;
 		font-weight: 500;
 		padding-right: 8px;
 		background-color: rgba(0,0,0,0);
+	}
+	label {
 		background-color: rgba(0,0,255,0.1); // DEBUG
 	}
-
+	
 	input {
 		width: 50px;
 		color: $primary;
@@ -112,16 +114,19 @@ html, body {
 	right: 20px;
 }
 
-.stat-group {
+.group {
 	@extend .stat;
-	top: 108px;
-	left: 28px;
 	width: 575px;
-	background-color: #cccccc;
+	background-color: #ccc;
 	border-radius: 12px;
 	border-color: $secondary;
 	border-width: 2px;
 	border-style: solid;
+}
+.stat-group {
+	@extend .group;
+	top: 108px;
+	left: 28px;
 }
 
 .tp, .sz, .tmm, .mv, .role, .skill {
@@ -141,8 +146,9 @@ html, body {
 
 
 .attack-group {
-	@extend .stat-group;
-	top: 220px;
+	@extend .group;
+	top: 210px;
+	left: 28px;
 }
 .damage {
 	position: absolute;
@@ -159,4 +165,31 @@ html, body {
 		text-align: center;
 	}
 
+}
+
+
+.heat-group {
+	@extend .group;
+	top: 312px;
+	left: 28px;
+	ul {
+		display: inline-block;
+		list-style: none;
+		color: #fff;
+		background-color: $primary;
+		border-radius: 12px;
+		border-color: $primary;
+		border-width: 2px;
+		border-style: solid;
+
+		li {
+			display: inline-block;
+			background-color: #888;
+			width: 1.75em;
+			text-align: center;
+		}
+	}
+}
+.ov {
+	display: inline-block;
 }
