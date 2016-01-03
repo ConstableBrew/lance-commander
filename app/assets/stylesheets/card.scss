@@ -1,5 +1,6 @@
-$primary:   #000000;
-$secondary: #2B2B2B;
+$primary:   rgba(#000000, 0.5);
+$secondary: rgba(#2B2B2B, 0.5);
+$fill:      rgba(#ccc, 0.5);
 
 html, body {
 	height: 100%;
@@ -17,24 +18,24 @@ html, body {
 .stat {
 	position: absolute;
 	padding: 0 10px;
-	background-color: rgba(255,0,0,0.1); // DEBUG
 	
 	&, label {
+		$labelFontSize: 28px;
 		color: $secondary;
-		font-size: 24px;
+		font-size: $labelFontSize;
 		font-weight: 500;
-		padding-right: 8px;
+		line-height: $labelFontSize;
+		padding-right: 12px;
 		background-color: rgba(0,0,0,0);
-	}
-	label {
-		background-color: rgba(0,0,255,0.1); // DEBUG
 	}
 	
 	input {
-		width: 50px;
+		$inputFontSize: 36px;
+		width: 68px;
 		color: $primary;
-		font-size: 30px;
+		font-size: $inputFontSize;
 		font-weight: 800;
+		line-height: $inputFontSize;
 		text-align: center;
 		text-shadow:
 			-1px -1px 0 rgba(255,255,255,0.5),
@@ -42,7 +43,6 @@ html, body {
 			-1px  1px 0 rgba(255,255,255,0.5),
 			 1px  1px 0 rgba(255,255,255,0.5);
 		background-color: rgba(0,0,0,0);
-		background-color: rgba(0,255,0,0.1); // DEBUG
 
 		&:hover {
 			box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.25);
@@ -70,18 +70,9 @@ html, body {
 	border-color: $secondary;
 	border-width: 20px;
 	border-style: solid;
-	background-color: rgba(0,0,255,0.2);
+	background-image: url(./template.jpg);
 }
 
-.data-entry {
-	@extend .stat;
-	display: none;
-	padding: 0;
-	z-index: 999;
-	input {
-		background: rgba(230,230,255,1);
-	}
-}
 
 .unit {
 	@extend .stat;
@@ -97,7 +88,7 @@ html, body {
 
 .variant {
 	@extend .stat;
-	top: 79px;
+	top: 75px;
 	left: 20px;
 	input {
 		width: 700px;
@@ -110,31 +101,54 @@ html, body {
 
 .pv {
 	@extend .stat;
-	top: 20px;
-	right: 20px;
+	top: 16px;
+	left: 820px;
+	label {
+		font-size: 42px;
+	}
+	input {
+		width: 90px;
+		font-size: 52px;
+	}
 }
 
 .group {
 	@extend .stat;
-	width: 575px;
-	background-color: #ccc;
-	border-radius: 12px;
+	width: 609px;
+	left: 37px;
+	background-color: $fill;
+	border-radius: 16px;
 	border-color: $secondary;
 	border-width: 2px;
 	border-style: solid;
-}
-.stat-group {
-	@extend .group;
-	top: 108px;
-	left: 28px;
+	padding-bottom: 3px;
+	
+	& > div {
+		height: 28px;
+	}
 }
 
+
+.stat-group {
+	@extend .group;
+	top: 169px;
+}
 .tp, .sz, .tmm, .mv, .role, .skill {
 	display: inline-block;
 }
-.tmm, .mv {
+.sz {
 	input {
-		width: 110px;
+		width: 40px
+	}
+}
+.tmm {
+	input {
+		width: 74px;
+	}
+}
+.mv {
+	input {
+		width: 118px;
 	}
 }
 .role {
@@ -147,18 +161,19 @@ html, body {
 
 .attack-group {
 	@extend .group;
-	top: 210px;
-	left: 28px;
+	top: 267px;
+	padding-top: 12px;
 }
 .damage {
 	position: absolute;
 	top: 30px;
 	left: -15px;
 	transform: rotate(-90deg);
+	font-size: 15px;
 }
 .short, .medium, .long {
 	display: inline-block;
-	margin-left: 40px;
+	margin-left: 85px;
 	label, input {
 		display: block;
 		width: 100px;
@@ -166,30 +181,117 @@ html, body {
 	}
 
 }
-
+.short {
+	margin-left: 55px;
+}
 
 .heat-group {
 	@extend .group;
-	top: 312px;
-	left: 28px;
+	top: 371px;
+	padding-top: 3px;
+	padding-bottom: 3px;
 	ul {
 		display: inline-block;
+		margin: 0;
+		margin-left: 54px;
 		list-style: none;
-		color: #fff;
-		background-color: $primary;
-		border-radius: 12px;
-		border-color: $primary;
-		border-width: 2px;
-		border-style: solid;
+		font-size: 0;
 
 		li {
+			position: relative;
+			top: -4px;
 			display: inline-block;
 			background-color: #888;
-			width: 1.75em;
+			width: 54px;
+			font-size: 24px;
+			line-height: 36px;
 			text-align: center;
+			color: #fff;
+			border-color: $primary;
+			border-width: 2px;
+			border-style: solid;
+			margin-left: -2px;
+
+		}
+		li:first-child {
+			border-top-left-radius: 12px;
+			border-bottom-left-radius: 12px;
+		}
+
+		li:last-child {
+			border-top-right-radius: 12px;
+			border-bottom-right-radius: 12px;
 		}
 	}
 }
 .ov {
 	display: inline-block;
+	input {
+		width: 40px;
+	}
+	margin-right: 14px;
+}
+
+.structure-group {
+	@extend .group;
+	top: 442px;
+	width: 533px;
+	height: 80px;
+}
+.pip-group {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+	align-content: space-around;
+
+	position: absolute;
+	width: 100px;
+	height: 76px !important;
+	padding-left: 28px;
+	font-size: 24px;
+	line-height: 24px;
+
+	label {
+		position: absolute;
+		top: 23px;
+		left: 0px;
+	}
+	.pip {
+		position: relative;
+		display: inline-block;
+		flex: 0 0 auto;
+		width: 21px;
+		height: 21px;
+		top: -2px;
+		margin: 0;
+		line-height: 21px;
+		border-color: $primary;
+		border-width: 2px;
+		border-style: solid;
+		border-radius: 10.4px;
+	}
+	.pip:nth-child(5n+1) {
+		margin-right: 4px;
+	}
+}
+.structure {
+	@extend .pip-group;
+	left: 8px;
+	top: 0px;
+	width: 152px;
+	background-color: rgba(green, 0.2);
+	.pip {
+		background-color: #bbb;
+	}
+}
+.armor{
+	@extend .pip-group;
+	left: 164px;
+	top: 0px;
+	width: 364px;
+	background-color: rgba(red, 0.2);
+	.pip {
+		background-color: #fff;
+	}
 }
