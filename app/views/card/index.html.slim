@@ -52,34 +52,14 @@
 			li S
 
 	.structure-group
-		.armor [id="a"]
-			label [title="Armor" for="a"] A:
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-		.structure [id="s"]
-			label [title="Structure" for="s"] S:
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
-			.pip
+		.structure
+			label [id="structureLabel" title="Structure" for="structure"] S:
+			input [id="structure" type="hidden" value="2"]
+		.armor
+			label [id="armorLabel" title="Armor" for="armor"] A:
+			input [id="armor" type="hidden" value="2"]
+
+	.special-group
+		.special
+			label [title="Special Abilities" for="special"] special: 
+			input [id="special" name="special" value="ene" placeholder=""]
