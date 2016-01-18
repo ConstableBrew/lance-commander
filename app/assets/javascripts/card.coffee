@@ -63,20 +63,78 @@ window.ready ->
 
 		offensiveValue = do ->
 			attackDamageFactor = (short.value | 0) + 2 * (medium.value | 0) + (long.value | 0)
-			unitSizeFactor = if tp.value.uppercase is 'BM' or tp.value.uppercase is 'PM' then 0.5 * (sz.value | 0) else 0
-			overHeatFactor = (if (ov.value | 0) > 0 then 1 else 0) + 0.5 * Math.max(ov.value | 0, 0)
+			unitSizeFactor = if tp.value.toUpperCase() is 'BM' or tp.value.toUpperCase() is 'PM' then 0.5 * (sz.value | 0) else 0
+			overHeatFactor = (if (ov.value | 0) > 0 then 1 else 0) + 0.5 * Math.max((ov.value | 0) - 1, 0)
 			overHeatFactor *= 0.5 if (medium.value | 0) + (long.value | 0) is 0
 			offensiveSpecialAbilityFactor = 0 # TODO
 			blanketOffensiveModifier = 1 # TODO
 
+			console.log 'attackDamageFactor', attackDamageFactor,'unitSizeFactor', unitSizeFactor,'overHeatFactor', overHeatFactor,'offensiveSpecialAbilityFactor', offensiveSpecialAbilityFactor,'blanketOffensiveModifier', blanketOffensiveModifier
 			Math.ceil((attackDamageFactor + unitSizeFactor + overHeatFactor + offensiveSpecialAbilityFactor) * blanketOffensiveModifier * 2) / 2
 		defensiveValue = do ->
-			movementFactor = movement.values.reduce (a, b) -> if a > b/4 then a else b/4
-			movementFactor /= 2 if movement.units is 'inches'
+			movementFactor = movement.values.reduce (a, b) -> if a > b then a else b
+			movementFactor /= 2 + (if movement.units is 'inches' then 2 else 0)
 			movementFactor += 0.5 if movement['j']?
-			movementFactor
+			defensiveSpecialAbilityFactor = 0 # TODO
+			defensiveInteractionRating = do ->
+				armorFactor = 2
+				if tp.value.toUpperCase() is 'SV' or tp.value.toUpperCase() is 'CV'
+					if movement['t'] or movement['s'] or movement['n']
+						armorFactor = 1.8 
+					else if movement['w'] or movement['h']
+						armorFactor = 1.7
+					else if movement['g'] or movement['v']
+						armorFactor = 1.5
+					if specials['ARS']
+						armorFactor += 0.1
+				if specials['BAR']
+					armorFactor *= 0.5
+				
+				structureFactor = 1
+				if tp.value.toUpperCase() is 'IM' or specials['BAR'] 
+					structureFactor = 0.5
+				else if tp.value.toUpperCase() is 'BA' or tp.value.toUpperCase() is 'CI'
+					structureFactor = 2
 
-		console.log offensiveValue, defensiveValue
+				DIR_movementFactor = 0
+				if movement['base'] <= 2 * (if movement.units is 'hexes' then 1 else 2)
+					DIR_movementFactor += 0
+				else if movement['base'] <= 4 * (if movement.units is 'hexes' then 1 else 2)
+					DIR_movementFactor += 1
+				else if movement['base'] <= 6 * (if movement.units is 'hexes' then 1 else 2)
+					DIR_movementFactor += 2
+				else if movement['base'] <= 9 * (if movement.units is 'hexes' then 1 else 2)
+					DIR_movementFactor += 3
+				else if movement['base'] <= 17 * (if movement.units is 'hexes' then 1 else 2)
+					DIR_movementFactor += 4
+				else if movement['base'] > 17 * (if movement.units is 'hexes' then 1 else 2)
+					DIR_movementFactor += 5
+				if movement['j']
+					DIR_movementFactor += 1
+
+				defenseFactor = DIR_movementFactor
+				if tp.value.toUpperCase() is 'BA' or tp.value.toUpperCase() is 'PM'
+					defenseFactor += 1
+				if tp.value.toUpperCase() is 'CV' or tp.value.toUpperCase() is 'SV'
+					if movement['v'] or movement['g']
+						defenseFactor += 1
+				if specials['LG'] or specials['VLG'] or specials['SLG']
+					defenseFactor -= 1
+				if specials['STL']
+					defenseFactor += 2
+				if (specials['MAS'] or specials['LMAS']) and DIR_movementFactor < 3
+					defenseFactor += 3
+				defenseFactor = Math.max(0, defenseFactor) / 10 + 1
+				console.log 'defenseFactor',defenseFactor,'armor',armorFactor * (+armor.value | 0),'structure',structureFactor * (+structure.value | 0) 
+				Math.ceil( defenseFactor * (armorFactor * (+armor.value | 0) + structureFactor * (+structure.value | 0)) * 2) / 2
+			console.log 'movementFactor', movementFactor, 'defensiveSpecialAbilityFactor', defensiveSpecialAbilityFactor, 'defensiveInteractionRating', defensiveInteractionRating
+			movementFactor + defensiveSpecialAbilityFactor + defensiveInteractionRating
+
+		subTotal = offensiveValue + defensiveValue
+		console.log 'OffensiveValue:', offensiveValue, 'defensiveValue:', defensiveValue, 'subtotal', subTotal
+		# TODO Final PV modifiers 
+		# TODO Force Bonuses
+		return subTotal
 
 
 	parseMovement = ->
@@ -84,39 +142,52 @@ window.ready ->
 		moves = mv.value.split '/'
 		moves[i] = {
 			value: moves[i].match(/^\d+/)?[0] | 0
-			mode: moves[i].match(/[a-z]$/i)?[0] || ''
+			mode: (moves[i].match(/[a-z]$/i)?[0] || '').toLowerCase()
 		} for move, i in moves
 		movement.values = (move.value for move in moves)
 		(movement[move.mode] = move.value) for move in moves
+		movement.base = movement.values[0]
 		movement.units = if ~mv.value.indexOf '"' then 'inches' else 'hexes'
-		console.log movement
 
 	parseSpecials = ->
 		specials = {}
-		console.log specials
+		specs = special.value.replace(/\(.*?\)/g,'').split ', '
+		specs[i] = {
+			value: specs[i].match(/\d*$/)?[0] | 0
+			label: (specs[i].match(/^[a-z]*/i)?[0] || '').toUpperCase()
+		} for spec, i in specs
+		(specials[spec.label] = spec.value) for spec in specs
+		console.log 'Specials', specials
 
 
 
+	# Scale the card now and then later whenever the window size is changed
 	scaleCard()
 	window.addEventListener 'resize', scaleCard, false
 
 
-	
-
+	# Set up the click listener on the Structure label to add new pips
 	structureLabel = document.getElementById 'structureLabel'
 	structurePipContainer = structure.parentNode
 	fixupPips structurePipContainer
 	structureLabel.addEventListener 'click', ->
+		# Remove a pip when a pip is clicked
 		structure.value = (+structure.value | 0) + 1
 		fixupPips structurePipContainer
 	, false
 	
+
+	# Set up the click listener on the Armor label to add new pips
 	armorLabel = document.getElementById 'armorLabel'
 	armorPipContainer = armorLabel.parentNode
 	fixupPips armorPipContainer
 	armorLabel.addEventListener 'click', ->
+		# Remove a pip when a pip is clicked
 		armor.value = (+armor.value | 0) + 1
 		fixupPips armorPipContainer
 	, false
 
-	(document.getElementById 'card').addEventListener 'click', calculatePV, false
+	# Calculate PV everytime the card is clicked
+	(document.getElementById 'card').addEventListener 'click', ->
+		pv.value = Math.max(1, Math.round(calculatePV()))
+	, false
