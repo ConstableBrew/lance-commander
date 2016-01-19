@@ -150,7 +150,29 @@ window.ready ->
 
 		subTotal = offensiveValue + defensiveValue
 
-		speedAndRangeFactor = 1 # TODO Final PV modifiers 
+		speedAndRangeFactor = 1
+		if (not specials['ARTAIS']? and
+			not specials['ARTAC']? and
+			not specials['ARTT']? and
+			not specials['ARTLT']? and
+			not specials['ARTBA']? and
+			not specials['ARTTC']? and
+			not specials['ARTSC']? and
+			not specials['ARTLTC']? and
+			not specials['BT']? and
+			movement.best > 0 and
+			(long.value | 0) is 0
+			# TODO: Include logic for "and if unit is armed"
+		)
+			if movement.best < 3 * (if movement.units is 'hexes' then 1 else 2)
+				if (medium.value | 0) is 0
+					speedAndRangeFactor = 0.5
+				else
+					speedAndRangeFactor = 0.75
+			else if movement.best <= 5 * (if movement.units is 'hexes' then 1 else 2)
+				if (medium.value | 0) is 0
+					speedAndRangeFactor = 0.75
+
 		
 		forceBonus = 0
 		forceBonus += +(forceBonuses[spec]?(rating)) || 0 for spec, rating of specials
