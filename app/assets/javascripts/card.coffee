@@ -65,16 +65,33 @@ window.ready ->
 			unitSizeFactor = if tp.value.toUpperCase() is 'BM' or tp.value.toUpperCase() is 'PM' then 0.5 * (sz.value | 0) else 0
 			overHeatFactor = (if (ov.value | 0) > 0 then 1 else 0) + 0.5 * Math.max((ov.value | 0) - 1, 0)
 			overHeatFactor *= 0.5 if (medium.value | 0) + (long.value | 0) is 0
-			offensiveSpecialAbilityFactor = 0 # TODO
-			blanketOffensiveModifier = 1 # TODO
+			offensiveSpecialAbilityFactor = 0
+			offensiveSpecialAbilityFactor += +(offensiveSpecialAbilityFactors[spec]?(rating)) || 0 for spec, rating of specials
+			blanketOffensiveModifier = 1
+			blanketOffensiveModifier += if (tp.value is 'IM' or tp.value is 'SV') and not (specials['AFC']? or specials['BFC']?) then -0.2 else 0
+			blanketOffensiveModifier += if (
+				specials['C3BSI']? or 
+				specials['C3BSM']? or 
+				specials['C3BSS']? or 
+				specials['C3EM']? or 
+				specials['C3M']? or 
+				specials['C3S']? or 
+				specials['C3I']?
+			) then 0.1 else 0
+			blanketOffensiveModifier += +(blanketOffensiveModifiers[spec]?(rating)) || 0 for spec, rating of specials
 
-			console.log 'attackDamageFactor', attackDamageFactor,'unitSizeFactor', unitSizeFactor,'overHeatFactor', overHeatFactor,'offensiveSpecialAbilityFactor', offensiveSpecialAbilityFactor,'blanketOffensiveModifier', blanketOffensiveModifier
+			console.log 'attackDamageFactor', attackDamageFactor,
+				'unitSizeFactor', unitSizeFactor,
+				'overHeatFactor', overHeatFactor,
+				'offensiveSpecialAbilityFactor', offensiveSpecialAbilityFactor,
+				'blanketOffensiveModifier', blanketOffensiveModifier
 			Math.ceil((attackDamageFactor + unitSizeFactor + overHeatFactor + offensiveSpecialAbilityFactor) * blanketOffensiveModifier * 2) / 2
 		defensiveValue = do ->
-			movementFactor = movement.values.reduce (a, b) -> if a > b then a else b
+			movementFactor = movement.best
 			movementFactor /= 2 + (if movement.units is 'inches' then 2 else 0)
 			movementFactor += 0.5 if movement['j']?
-			defensiveSpecialAbilityFactor = 0 # TODO
+			defensiveSpecialAbilityFactor = 0
+			defensiveSpecialAbilityFactor += +(defensiveSpecialAbilityFactors[spec]?(rating)) || 0 for spec, rating of specials
 			defensiveInteractionRating = do ->
 				armorFactor = 2
 				if tp.value.toUpperCase() is 'SV' or tp.value.toUpperCase() is 'CV'
@@ -96,17 +113,17 @@ window.ready ->
 					structureFactor = 2
 
 				DIR_movementFactor = 0
-				if movement['base'] <= 2 * (if movement.units is 'hexes' then 1 else 2)
+				if movement.best <= 2 * (if movement.units is 'hexes' then 1 else 2)
 					DIR_movementFactor += 0
-				else if movement['base'] <= 4 * (if movement.units is 'hexes' then 1 else 2)
+				else if movement.best <= 4 * (if movement.units is 'hexes' then 1 else 2)
 					DIR_movementFactor += 1
-				else if movement['base'] <= 6 * (if movement.units is 'hexes' then 1 else 2)
+				else if movement.best <= 6 * (if movement.units is 'hexes' then 1 else 2)
 					DIR_movementFactor += 2
-				else if movement['base'] <= 9 * (if movement.units is 'hexes' then 1 else 2)
+				else if movement.best <= 9 * (if movement.units is 'hexes' then 1 else 2)
 					DIR_movementFactor += 3
-				else if movement['base'] <= 17 * (if movement.units is 'hexes' then 1 else 2)
+				else if movement.best <= 17 * (if movement.units is 'hexes' then 1 else 2)
 					DIR_movementFactor += 4
-				else if movement['base'] > 17 * (if movement.units is 'hexes' then 1 else 2)
+				else if movement.best > 17 * (if movement.units is 'hexes' then 1 else 2)
 					DIR_movementFactor += 5
 				if movement['j']
 					DIR_movementFactor += 1
@@ -125,16 +142,28 @@ window.ready ->
 					defenseFactor += 3
 				defenseFactor = Math.max(0, defenseFactor) / 10 + 1
 				console.log 'defenseFactor',defenseFactor,'armor',armorFactor * (+armor.value | 0),'structure',structureFactor * (+structure.value | 0) 
-				Math.ceil( defenseFactor * (armorFactor * (+armor.value | 0) + structureFactor * (+structure.value | 0)) * 2) / 2
-			console.log 'movementFactor', movementFactor, 'defensiveSpecialAbilityFactor', defensiveSpecialAbilityFactor, 'defensiveInteractionRating', defensiveInteractionRating
+				Math.ceil( defenseFactor * (armorFactor * (armor.value | 0) + structureFactor * (structure.value | 0)) * 2) / 2
+			console.log 'movementFactor', movementFactor, 
+				'defensiveSpecialAbilityFactor', defensiveSpecialAbilityFactor, 
+				'defensiveInteractionRating', defensiveInteractionRating
 			movementFactor + defensiveSpecialAbilityFactor + defensiveInteractionRating
 
 		subTotal = offensiveValue + defensiveValue
-		console.log 'OffensiveValue:', offensiveValue, 'defensiveValue:', defensiveValue, 'subtotal', subTotal
-		# TODO Final PV modifiers 
-		# TODO Force Bonuses
-		return subTotal
 
+		speedAndRangeFactor = 1 # TODO Final PV modifiers 
+		
+		forceBonus = 0
+		forceBonus += +(forceBonuses[spec]?(rating)) || 0 for spec, rating of specials
+
+
+		console.log 'OffensiveValue:', offensiveValue, 
+			'defensiveValue:', defensiveValue,
+			'subtotal', subTotal
+			'speedAndRangeFactor', speedAndRangeFactor
+			'forceBonus', forceBonus
+			
+		Math.max(1, Math.round(speedAndRangeFactor * subTotal + forceBonus))
+		
 
 	parseMovement = ->
 		movement = {}
@@ -147,24 +176,25 @@ window.ready ->
 		(movement[move.mode] = move.value) for move in moves
 		movement.base = movement.values[0]
 		movement.units = if ~mv.value.indexOf '"' then 'inches' else 'hexes'
+		movement.best = Math.max.apply null, movement.values
 
 	parseSpecials = ->
 		specials = {}
 		specs = special.value.toUpperCase().replace(/\(.*?\)/g,'').split ', '
 		specs = ({
-			value: spec.match(/(\d+(?![a-z]))/gi)
+			rating: spec.match(/(\d+(?![a-z]))/gi)
 			label: (spec.match(/^(c3)?[a-z]*/i)?[0] || '').toUpperCase()
 		} for spec, i in specs)
-		spec.value = (if spec.value?[1]? then [
-			spec.value[0] | 0
-			spec.value[1] | 0
-			spec.value[2] | 0
-		] else (if spec.value? then (spec.value?[0] | 0) else null)) for spec, i in specs
-		(specials[spec.label] = spec.value) for spec in specs
+		spec.rating = (if spec.rating?[1]? then [
+			spec.rating[0] | 0
+			spec.rating[1] | 0
+			spec.rating[2] | 0
+		] else (if spec.rating? then (spec.rating?[0] | 0) else 0)) for spec, i in specs
+		(specials[spec.label] = spec.rating) for spec in specs
 	
 	doCalculations = ->
 		console.info 'Doing calculations...'
-		
+
 		pvSkillRating = [2.63, 2.24, 1.82, 1.38, 1, 0.86, 0.77, 0.68] # AS Pg. 167 "POINT VALUE SKILL RATING TABLE"
 		skillRating = if parseInt(skill.value, 10) != (skill.value | 0) then 4 else (skill.value | 0) # scrub the skill input
 		skillRating = if pvSkillRating[skillRating]? then skillRating else 4
@@ -175,7 +205,67 @@ window.ready ->
 		finalPV = if isNaN(finalPV) then '?' else finalPV
 		pv.value = finalPV
 
+	offensiveSpecialAbilityFactors = {
+		ARTAIS: (rating) -> 3 * 4 * rating
+		ARTAC: (rating) -> 3 * 4 * rating
+		ARTT: (rating) -> 2 * 4 * rating
+		ARTLT: (rating) -> (5 * 4 + 2 * 2 + (6 - 2) * 2) * rating
+		ARTBA: (rating) -> 2 * 4 * rating
+		ARTTC: (rating) -> 1 * 4 * rating
+		ARTSC: (rating) -> 2 * 4 * rating
+		ARTLTC: (rating) -> 3 * 4 * rating
+		BT: (rating) -> sz * movement.best * (if movement.units is 'hexes' then 1 else 2)
+		CNARC: -> 0.5
+		ECS: -> 0.25
+		HT: (rating) -> Math.max.apply(null, rating) + if (rating[1] | 0) > 0 then 0.5 else 0
+		IF: (rating) -> rating
+		INARC: -> 1
+		LTAG: -> 0.25
+		MDS: (rating) -> rating
+		MEL: -> 0.5
+		MTAS: (rating) -> rating
+		OVL: (rating) -> rating / 4
+		RHS: -> Math.max (if specials['OVL'] then 1 else 0), (if (ov.value | 0) > 0 then 0.5 else 0.25)
+		SNARC: -> 1
+		TAG: -> 0.5
+		TSEMP: (rating) -> Math.min 5, rating
+		TSM: -> 1
+	}
 
+	blanketOffensiveModifiers = {
+		BFC: -> -0.1
+		DRO: -> -0.1
+		SHLD: -> -0.1
+		VRT: -> 0.1
+	}
+
+	defensiveSpecialAbilityFactors = {
+		ABA: -> 0.5
+		AMS: -> 1
+		ARM: -> if (structure.value | 0) > 1 then 0.5 else 0
+		BHJ: (rating) -> (rating / 2) * Math.floor((structure.value | 0) / 3) * (if special['BAR']? then 0.5 else 1)
+		BRA: -> 0.75 * Math.floor((structure.value | 0) / 3) * (if special['BAR']? then 0.5 else 1)
+		CR: -> 0.25
+		FR: -> 0.5
+		IRA: -> 0.5 * Math.floor((structure.value | 0) / 3) * (if special['BAR']? then 0.5 else 1)
+		PNT: (rating) -> rating
+		RAMS: -> 1.25
+		RCA: -> 1 * Math.floor((structure.value | 0) / 3) * (if special['BAR']? then 0.5 else 1)
+		SHLD: -> 1 * Math.floor((structure.value | 0) / 3) * (if special['BAR']? then 0.5 else 1)
+	}
+
+	forceBonuses = {
+		AECM: -> 3
+		BH: -> 2
+		C3RS: -> 2
+		ECM: -> 2
+		LECM: -> 0.5
+		MHQ: (rating) -> rating
+		PRB: -> 1
+		LPRB: -> 1
+		RCN: -> 2
+		TRN: -> 2
+	}
 
 
 
@@ -183,7 +273,6 @@ window.ready ->
 
 	# TODO: calculate TMM
 	# TODO: calculate possible roles
-	# TODO: adjust PV for skill
 	# TODO: allow manual override, no PV calculations
 
 	# Scale the card now and then later whenever the window size is changed
