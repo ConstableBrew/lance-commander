@@ -1,6 +1,7 @@
 "use strict";
 
 window.ready ->
+	card = document.getElementById 'card-container'
 	unit = document.getElementById 'unit'
 	variant = document.getElementById 'variant'
 	pv = document.getElementById 'pv'
@@ -22,8 +23,6 @@ window.ready ->
 	specials = {} # Parsed specials
 	
 	scaleCard = ->
-		card = document.getElementById 'card-container'
-
 		cardWidth = 1050
 		cardHeight = 750
 
@@ -151,15 +150,41 @@ window.ready ->
 
 	parseSpecials = ->
 		specials = {}
-		specs = special.value.replace(/\(.*?\)/g,'').split ', '
-		specs[i] = {
-			value: specs[i].match(/\d*$/)?[0] | 0
-			label: (specs[i].match(/^[a-z]*/i)?[0] || '').toUpperCase()
-		} for spec, i in specs
+		specs = special.value.toUpperCase().replace(/\(.*?\)/g,'').split ', '
+		specs = ({
+			value: spec.match(/(\d+(?![a-z]))/gi)
+			label: (spec.match(/^(c3)?[a-z]*/i)?[0] || '').toUpperCase()
+		} for spec, i in specs)
+		spec.value = (if spec.value?[1]? then [
+			spec.value[0] | 0
+			spec.value[1] | 0
+			spec.value[2] | 0
+		] else (if spec.value? then (spec.value?[0] | 0) else null)) for spec, i in specs
 		(specials[spec.label] = spec.value) for spec in specs
-		console.log 'Specials', specials
+	
+	doCalculations = ->
+		console.info 'Doing calculations...'
+		
+		pvSkillRating = [2.63, 2.24, 1.82, 1.38, 1, 0.86, 0.77, 0.68] # AS Pg. 167 "POINT VALUE SKILL RATING TABLE"
+		skillRating = if parseInt(skill.value, 10) != (skill.value | 0) then 4 else (skill.value | 0) # scrub the skill input
+		skillRating = if pvSkillRating[skillRating]? then skillRating else 4
+		skill.value = skillRating
+
+		basePV = Math.max(1, Math.round(calculatePV()))
+		finalPV = Math.max(1, Math.round(basePV * pvSkillRating[skillRating])) # Adjust PV for pilot skill rating
+		finalPV = if isNaN(finalPV) then '?' else finalPV
+		pv.value = finalPV
 
 
+
+
+
+
+
+	# TODO: calculate TMM
+	# TODO: calculate possible roles
+	# TODO: adjust PV for skill
+	# TODO: allow manual override, no PV calculations
 
 	# Scale the card now and then later whenever the window size is changed
 	scaleCard()
@@ -187,7 +212,27 @@ window.ready ->
 		fixupPips armorPipContainer
 	, false
 
-	# Calculate PV everytime the card is clicked
-	(document.getElementById 'card').addEventListener 'click', ->
-		pv.value = Math.max(1, Math.round(calculatePV()))
-	, false
+	# Calculate PV everytime pips are clicked or an input field is blurred
+	(inputField.addEventListener('click', doCalculations, false)) for inputField in [
+		card
+		structurePipContainer
+		armorPipContainer
+	]
+	(inputField.addEventListener('blur', doCalculations, false)) for inputField in [
+		unit
+		variant
+		pv
+		tp
+		sz
+		tmm
+		mv
+		role
+		skill
+		short
+		medium
+		long
+		ov
+		structure
+		armor
+		special
+	]
