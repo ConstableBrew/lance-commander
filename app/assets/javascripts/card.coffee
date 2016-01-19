@@ -161,9 +161,27 @@ window.ready ->
 			'subtotal', subTotal
 			'speedAndRangeFactor', speedAndRangeFactor
 			'forceBonus', forceBonus
-			
+
 		Math.max(1, Math.round(speedAndRangeFactor * subTotal + forceBonus))
-		
+	
+	calculateTMM = ->
+		tmmString = for speed, i in movement.values
+			if speed <= 2 * (if movement.units is 'hexes' then 1 else 2)
+				tmmValue = 0
+			else if speed <= 4 * (if movement.units is 'hexes' then 1 else 2)
+				tmmValue = 1
+			else if speed <= 6 * (if movement.units is 'hexes' then 1 else 2)
+				tmmValue = 2
+			else if speed <= 9 * (if movement.units is 'hexes' then 1 else 2)
+				tmmValue = 3
+			else if speed <= 17 * (if movement.units is 'hexes' then 1 else 2)
+				tmmValue = 4
+			else if speed > 17 * (if movement.units is 'hexes' then 1 else 2)
+				tmmValue = 5
+			if movement['j']
+				tmmValue += 1
+			tmmValue + if movement.modes[i] then movement.modes[i] else ''
+		tmmString.join('/')
 
 	parseMovement = ->
 		movement = {}
@@ -173,6 +191,7 @@ window.ready ->
 			mode: (moves[i].match(/[a-z]$/i)?[0] || '').toLowerCase()
 		} for move, i in moves
 		movement.values = (move.value for move in moves)
+		movement.modes = (move.mode for move in moves)
 		(movement[move.mode] = move.value) for move in moves
 		movement.base = movement.values[0]
 		movement.units = if ~mv.value.indexOf '"' then 'inches' else 'hexes'
@@ -205,7 +224,11 @@ window.ready ->
 		finalPV = if isNaN(finalPV) then '?' else finalPV
 		pv.value = finalPV
 
+		tmm.value = calculateTMM()
+
+
 	offensiveSpecialAbilityFactors = {
+		# using advanced rules artillery damage values
 		ARTAIS: (rating) -> 3 * 4 * rating
 		ARTAC: (rating) -> 3 * 4 * rating
 		ARTT: (rating) -> 2 * 4 * rating
@@ -271,7 +294,6 @@ window.ready ->
 
 
 
-	# TODO: calculate TMM
 	# TODO: calculate possible roles
 	# TODO: allow manual override, no PV calculations
 
